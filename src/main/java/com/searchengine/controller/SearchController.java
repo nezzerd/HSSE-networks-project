@@ -93,6 +93,7 @@ public class SearchController {
             result.totalHits(),
             result.hasMore(),
             took,
+            result.suggestion(),
             results
         );
 

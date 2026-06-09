@@ -50,6 +50,7 @@ public class SearchWebController {
             model.addAttribute("totalHits", 0L);
             model.addAttribute("totalPages", 0);
             model.addAttribute("pageNumbers", List.of());
+            model.addAttribute("suggestion", null);
             return "results";
         }
 
@@ -72,6 +73,7 @@ public class SearchWebController {
         model.addAttribute("totalHits", totalHits);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageNumbers", buildPageWindow(page, totalPages));
+        model.addAttribute("suggestion", result.suggestion());
         model.addAttribute("prevPage", page > 0 ? page - 1 : null);
         model.addAttribute("nextPage", result.hasMore() ? page + 1 : null);
 

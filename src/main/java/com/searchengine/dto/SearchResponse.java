@@ -28,6 +28,10 @@ public record SearchResponse(
     @Schema(description = "Время выполнения запроса в миллисекундах", example = "12")
     long tookMillis,
 
+    @Schema(description = "Предлагаемое исправление запроса при отсутствии результатов (может быть null)",
+        example = "spring")
+    String suggestion,
+
     @Schema(description = "Список найденных страниц")
     List<SearchResultDto> results
 ) {}

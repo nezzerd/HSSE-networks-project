@@ -13,6 +13,10 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.spell.DirectSpellChecker;
+import org.apache.lucene.search.spell.SuggestWord;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -79,8 +83,35 @@ public class LuceneSearcher {
             List<SearchHit> hits = collectHits(searcher, query, topDocs, offset, pageSize);
             boolean hasMore = (long) offset + pageSize < totalHits;
 
-            return new SearchPage(hits, hasMore, totalHits);
+            String suggestion = totalHits == 0 ? buildSuggestion(reader, queryString) : null;
+
+            return new SearchPage(hits, hasMore, totalHits, suggestion);
         }
+    }
+
+    private String buildSuggestion(IndexReader reader, String queryString) throws IOException {
+        DirectSpellChecker spellChecker = new DirectSpellChecker();
+        StringBuilder suggestion = new StringBuilder();
+        boolean corrected = false;
+
+        for (String token : queryString.toLowerCase().strip().split("\\s+")) {
+            if (token.isBlank()) {
+                continue;
+            }
+            if (suggestion.length() > 0) {
+                suggestion.append(' ');
+            }
+            SuggestWord[] words = spellChecker.suggestSimilar(
+                new Term(LuceneIndexer.FIELD_CONTENT, token), 1, reader);
+            if (words.length > 0 && !words[0].string.equals(token)) {
+                suggestion.append(words[0].string);
+                corrected = true;
+            } else {
+                suggestion.append(token);
+            }
+        }
+
+        return corrected ? suggestion.toString() : null;
     }
 
     private List<SearchHit> collectHits(

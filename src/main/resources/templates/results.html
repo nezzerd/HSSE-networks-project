@@ -37,6 +37,10 @@
 
     <div th:if="${query != null and !query.isEmpty() and !hasResults}" class="no-results">
         <p>По запросу <strong th:text="${query}">запрос</strong> ничего не найдено.</p>
+        <p class="suggestion" th:if="${suggestion != null}">
+            Возможно, вы имели в виду:
+            <a th:href="@{/search(q=${suggestion})}" th:text="${suggestion}">исправление</a>
+        </p>
         <p class="hint">Попробуйте изменить формулировку или использовать более общие слова.</p>
     </div>
 

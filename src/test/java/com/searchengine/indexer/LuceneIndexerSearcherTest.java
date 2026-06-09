@@ -131,6 +131,31 @@ class LuceneIndexerSearcherTest {
     }
 
     @Test
+    void search_suggestsCorrection_whenNoResults() throws IOException, ParseException {
+        indexer.indexPages(List.of(
+            buildPage(1L, "https://example.com/spring", "Spring Boot guide",
+                "Learn the spring framework and spring boot for building applications.")));
+
+        SearchPage result = searcher.search("sprng", 0);
+
+        assertThat(result.hits()).isEmpty();
+        assertThat(result.suggestion()).isNotNull();
+        assertThat(result.suggestion()).contains("spring");
+    }
+
+    @Test
+    void search_hasNoSuggestion_whenResultsFound() throws IOException, ParseException {
+        indexer.indexPages(List.of(
+            buildPage(1L, "https://example.com/spring", "Spring Boot guide",
+                "Learn the spring framework and spring boot.")));
+
+        SearchPage result = searcher.search("spring", 0);
+
+        assertThat(result.hits()).isNotEmpty();
+        assertThat(result.suggestion()).isNull();
+    }
+
+    @Test
     void countDocs_returnsCorrectCount() throws IOException {
         indexer.indexPages(List.of(
             buildPage(4L, "https://a.com", "Title A", "Content A"),
