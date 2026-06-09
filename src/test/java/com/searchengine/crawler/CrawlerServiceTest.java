@@ -37,19 +37,19 @@ class CrawlerServiceTest {
     @Test
     void seed_rejectsInvalidUrls() {
         service.seed(List.of("not-a-url", "javascript:alert(1)"));
-        verify(crawlQueueService, never()).enqueueIfAbsent(anyString(), anyString(), anyInt());
+        verify(crawlQueueService, never()).enqueueIfAbsent(anyString(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     void seed_rejectsPrivateIp() {
         service.seed(List.of("http://192.168.1.1/page"));
-        verify(crawlQueueService, never()).enqueueIfAbsent(anyString(), anyString(), anyInt());
+        verify(crawlQueueService, never()).enqueueIfAbsent(anyString(), anyString(), anyInt(), anyInt());
     }
 
     @Test
     void seed_acceptsValidPublicUrl() {
         service.seed(List.of("https://example.com/page"));
-        verify(crawlQueueService).enqueueIfAbsent(anyString(), anyString(), anyInt());
+        verify(crawlQueueService).enqueueIfAbsent(anyString(), anyString(), anyInt(), anyInt());
     }
 
     @Test

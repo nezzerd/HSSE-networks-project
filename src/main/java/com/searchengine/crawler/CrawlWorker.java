@@ -111,7 +111,8 @@ public class CrawlWorker {
                 continue;
             }
             try {
-                crawlQueueService.enqueueIfAbsent(link, hash, depth);
+                int priority = CrawlQueueService.priorityForDepth(depth, props.getMaxDepth());
+                crawlQueueService.enqueueIfAbsent(link, hash, depth, priority);
                 added++;
             } catch (DataAccessException | TransactionException e) {
                 log.trace("Skipping concurrent duplicate enqueue: {}", link);

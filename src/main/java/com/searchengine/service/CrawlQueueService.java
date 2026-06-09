@@ -1,5 +1,6 @@
 package com.searchengine.service;
 
+import com.searchengine.config.CrawlerProperties;
 import com.searchengine.entity.CrawlQueue;
 import com.searchengine.entity.Page;
 import com.searchengine.repository.CrawlQueueRepository;
@@ -18,6 +19,11 @@ public class CrawlQueueService {
 
     private final CrawlQueueRepository crawlQueueRepository;
     private final PageRepository pageRepository;
+    private final CrawlerProperties crawlerProperties;
+
+    public static int priorityForDepth(int depth, int maxDepth) {
+        return Math.max(0, maxDepth - depth);
+    }
 
     public long countByStatus(CrawlQueue.QueueStatus status) {
         return crawlQueueRepository.countByStatus(status);
@@ -43,20 +49,21 @@ public class CrawlQueueService {
     }
 
     @Transactional
-    public void enqueueIfAbsent(String url, String urlHash, int depth) {
+    public void enqueueIfAbsent(String url, String urlHash, int depth, int priority) {
         if (crawlQueueRepository.existsByUrlHash(urlHash)) {
             return;
         }
         crawlQueueRepository.save(CrawlQueue.builder()
-            .url(url).urlHash(urlHash).depth(depth)
+            .url(url).urlHash(urlHash).depth(depth).priority(priority)
             .status(CrawlQueue.QueueStatus.PENDING).build());
     }
 
     @Transactional
     public void requeueForRecrawl(String url, String urlHash) {
-        int reset = crawlQueueRepository.resetToPendingByUrlHash(urlHash);
+        int priority = priorityForDepth(0, crawlerProperties.getMaxDepth());
+        int reset = crawlQueueRepository.resetToPendingByUrlHash(urlHash, priority);
         if (reset == 0) {
-            enqueueIfAbsent(url, urlHash, 0);
+            enqueueIfAbsent(url, urlHash, 0, priority);
         }
     }
 

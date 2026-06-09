@@ -53,7 +53,8 @@ public class CrawlerService {
             }
             String hash = HashUtils.sha256(url);
             if (!stateStore.isVisited(hash)) {
-                crawlQueueService.enqueueIfAbsent(url, hash, 0);
+                int priority = CrawlQueueService.priorityForDepth(0, props.getMaxDepth());
+                crawlQueueService.enqueueIfAbsent(url, hash, 0, priority);
             }
         }
     }

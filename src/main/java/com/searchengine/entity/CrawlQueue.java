@@ -28,6 +28,10 @@ public class CrawlQueue {
     @Builder.Default
     private int depth = 0;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private int priority = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     @Builder.Default

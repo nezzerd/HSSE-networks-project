@@ -23,7 +23,7 @@ public interface CrawlQueueRepository extends JpaRepository<CrawlQueue, Long> {
     @Query("""
         SELECT q FROM CrawlQueue q
         WHERE q.status = com.searchengine.entity.CrawlQueue.QueueStatus.PENDING
-        ORDER BY q.depth ASC, q.createdAt ASC
+        ORDER BY q.priority DESC, q.depth ASC, q.createdAt ASC
         """)
     List<CrawlQueue> findPendingBatch(Pageable pageable);
 
@@ -41,8 +41,10 @@ public interface CrawlQueueRepository extends JpaRepository<CrawlQueue, Long> {
     @Modifying
     @Query("""
         UPDATE CrawlQueue q
-        SET q.status = com.searchengine.entity.CrawlQueue.QueueStatus.PENDING, q.depth = 0
+        SET q.status = com.searchengine.entity.CrawlQueue.QueueStatus.PENDING,
+            q.depth = 0,
+            q.priority = :priority
         WHERE q.urlHash = :urlHash
         """)
-    int resetToPendingByUrlHash(@Param("urlHash") String urlHash);
+    int resetToPendingByUrlHash(@Param("urlHash") String urlHash, @Param("priority") int priority);
 }
