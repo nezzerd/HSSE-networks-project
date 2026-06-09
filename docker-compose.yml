@@ -31,6 +31,8 @@ services:
       DB_NAME: ${DB_NAME:-searchengine}
       DB_USER: ${DB_USER:-searchengine}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required to manage the crawler and index}
       SEARCH_INDEX_PATH: /app/data/lucene-index
     volumes:
       - app-data:/app/data

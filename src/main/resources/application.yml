@@ -72,6 +72,11 @@ springdoc:
     enabled: true
   show-actuator: false
 
+app:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:}
+
 crawler:
   max-pages: 5000
   max-depth: 5
