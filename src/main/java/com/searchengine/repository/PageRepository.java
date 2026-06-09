@@ -3,6 +3,7 @@ package com.searchengine.repository;
 import com.searchengine.entity.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     List<Page> findByStatus(Page.PageStatus status, Pageable pageable);
 
     long countByStatus(Page.PageStatus status);
+
+    @Query("SELECT p.urlHash FROM Page p ORDER BY p.fetchedAt DESC")
+    List<String> findUrlHashesOrderByFetchedAtDesc(Pageable pageable);
 }

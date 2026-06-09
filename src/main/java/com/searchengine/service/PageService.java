@@ -37,6 +37,10 @@ public class PageService {
         return pageRepository.findByStatus(Page.PageStatus.FETCHED, pageable);
     }
 
+    public List<String> findUrlHashesNewestFirst(Pageable pageable) {
+        return pageRepository.findUrlHashesOrderByFetchedAtDesc(pageable);
+    }
+
     public long countFetched() {
         return pageRepository.countByStatus(Page.PageStatus.FETCHED);
     }

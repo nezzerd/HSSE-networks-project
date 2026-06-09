@@ -35,6 +35,10 @@ public class CrawlStateStore {
         }
     }
 
+    public int getMaxVisited() {
+        return MAX_VISITED;
+    }
+
     public int incrementAndGetPageCount() {
         return sessionPageCount.incrementAndGet();
     }
