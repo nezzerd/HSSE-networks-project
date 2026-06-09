@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +44,11 @@ public class PageService {
 
     public List<String> findUrlHashesNewestFirst(Pageable pageable) {
         return pageRepository.findUrlHashesOrderByFetchedAtDesc(pageable);
+    }
+
+    public List<Page> findStaleFetchedPages(Instant fetchedBefore, int limit) {
+        return pageRepository.findByStatusAndFetchedAtBeforeOrderByFetchedAtAsc(
+            Page.PageStatus.FETCHED, fetchedBefore, PageRequest.of(0, limit));
     }
 
     public long countFetched() {

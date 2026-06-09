@@ -35,6 +35,12 @@ public class CrawlStateStore {
         }
     }
 
+    public void unmarkVisited(String urlHash) {
+        synchronized (visitedHashes) {
+            visitedHashes.remove(urlHash);
+        }
+    }
+
     public int getMaxVisited() {
         return MAX_VISITED;
     }

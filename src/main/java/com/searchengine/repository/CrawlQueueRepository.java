@@ -37,4 +37,12 @@ public interface CrawlQueueRepository extends JpaRepository<CrawlQueue, Long> {
         WHERE q.id IN :ids
         """)
     void markProcessing(@Param("ids") List<Long> ids);
+
+    @Modifying
+    @Query("""
+        UPDATE CrawlQueue q
+        SET q.status = com.searchengine.entity.CrawlQueue.QueueStatus.PENDING, q.depth = 0
+        WHERE q.urlHash = :urlHash
+        """)
+    int resetToPendingByUrlHash(@Param("urlHash") String urlHash);
 }

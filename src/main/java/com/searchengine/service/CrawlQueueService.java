@@ -53,6 +53,14 @@ public class CrawlQueueService {
     }
 
     @Transactional
+    public void requeueForRecrawl(String url, String urlHash) {
+        int reset = crawlQueueRepository.resetToPendingByUrlHash(urlHash);
+        if (reset == 0) {
+            enqueueIfAbsent(url, urlHash, 0);
+        }
+    }
+
+    @Transactional
     public void persistError(String url, String urlHash, String reason) {
         if (pageRepository.existsByUrlHash(urlHash)) {
             return;

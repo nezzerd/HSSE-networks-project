@@ -89,6 +89,11 @@ crawler:
   max-queue-size: 100000
   max-links-per-page: 500
   user-agent: "SearchEngineBot/1.0 (educational project; contact: admin@example.com)"
+  simhash-threshold: 3
+  simhash-candidates: 50
+  recrawl-after-days: 7
+  recrawl-batch-size: 500
+  recrawl-cron: "0 0 3 * * *"
 
 search:
   index-path: ./data/lucene-index

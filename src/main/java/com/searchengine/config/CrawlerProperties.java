@@ -22,4 +22,7 @@ public class CrawlerProperties {
     private String userAgent = "SearchEngineBot/1.0";
     private int simhashThreshold = 3;
     private int simhashCandidates = 50;
+    private int recrawlAfterDays = 7;
+    private int recrawlBatchSize = 500;
+    private String recrawlCron = "0 0 3 * * *";
 }
