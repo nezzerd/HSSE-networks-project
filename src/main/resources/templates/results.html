@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" th:content="'Результаты поиска по запросу: ' + ${query}">
+    <title th:text="${query != null and !query.isEmpty()} ? ${query} + ' — поиск' : 'Поиск'">Поиск</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<header>
+    <nav>
+        <a th:href="@{/}" class="brand">SearchEngine</a>
+        <ul>
+            <li><a th:href="@{/}">Поиск</a></li>
+            <li><a th:href="@{/about}">О проекте</a></li>
+            <li><a th:href="@{/docs}">API docs</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="results-page">
+    <form action="/search" method="get" class="search-form search-form--compact">
+        <label for="q" class="sr-only">Поисковый запрос</label>
+        <input type="search" id="q" name="q" th:value="${query}"
+               placeholder="Введите запрос..." maxlength="256" autocomplete="off">
+        <button type="submit">Найти</button>
+    </form>
+
+    <p class="meta" th:if="${hasResults}">
+        <span th:text="'Страница ' + (${page} + 1)">Страница 1</span>
+        <span th:if="${tookMillis != null}" th:text="'· ' + ${tookMillis} + ' мс'"></span>
+    </p>
+
+    <div th:if="${query != null and !query.isEmpty() and !hasResults}" class="no-results">
+        <p>По запросу <strong th:text="${query}">запрос</strong> ничего не найдено.</p>
+        <p class="hint">Попробуйте изменить формулировку или использовать более общие слова.</p>
+    </div>
+
+    <ol class="result-list" th:if="${hasResults}">
+        <li class="result" th:each="r : ${results}">
+            <a class="result-title" th:href="${r.url()}" th:text="${r.title() != null and !r.title().isEmpty()} ? ${r.title()} : ${r.url()}"
+               rel="noopener noreferrer nofollow" target="_blank">Заголовок</a>
+            <div class="result-url" th:text="${r.url()}">https://example.com</div>
+            <p class="result-snippet" th:utext="${r.snippet()}">Фрагмент текста…</p>
+        </li>
+    </ol>
+
+    <nav class="pagination" th:if="${hasResults}" aria-label="Навигация по страницам">
+        <a th:if="${prevPage != null}"
+           th:href="@{/search(q=${query}, page=${prevPage})}"
+           class="page-link">← Назад</a>
+        <a th:if="${nextPage != null}"
+           th:href="@{/search(q=${query}, page=${nextPage})}"
+           class="page-link">Вперёд →</a>
+    </nav>
+</main>
+</body>
+</html>

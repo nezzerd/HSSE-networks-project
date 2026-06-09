@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Мини-поисковик на Spring Boot. Введи запрос и найди нужную информацию.">
+    <title>Search Engine</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<header>
+    <nav>
+        <a th:href="@{/}" class="brand">SearchEngine</a>
+        <ul>
+            <li><a th:href="@{/about}">О проекте</a></li>
+            <li><a th:href="@{/docs}">API docs</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="home">
+    <p class="tagline">Поиск по проиндексированным страницам</p>
+
+    <form action="/search" method="get" class="search-form">
+        <label for="q" class="sr-only">Поисковый запрос</label>
+        <input
+            type="search"
+            id="q"
+            name="q"
+            placeholder="Введите запрос..."
+            maxlength="256"
+            autocomplete="off"
+            autofocus
+        >
+        <button type="submit">Найти</button>
+    </form>
+</main>
+</body>
+</html>

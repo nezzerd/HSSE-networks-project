@@ -1,0 +1,40 @@
+package com.searchengine.repository;
+
+import com.searchengine.entity.CrawlQueue;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface CrawlQueueRepository extends JpaRepository<CrawlQueue, Long> {
+
+    boolean existsByUrlHash(String urlHash);
+
+    Optional<CrawlQueue> findByUrlHash(String urlHash);
+
+    long countByStatus(CrawlQueue.QueueStatus status);
+
+    @Query("""
+        SELECT q FROM CrawlQueue q
+        WHERE q.status = com.searchengine.entity.CrawlQueue.QueueStatus.PENDING
+        ORDER BY q.depth ASC, q.createdAt ASC
+        """)
+    List<CrawlQueue> findPendingBatch(Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE CrawlQueue q SET q.status = :status WHERE q.id = :id")
+    void updateStatusById(@Param("id") Long id, @Param("status") CrawlQueue.QueueStatus status);
+
+    @Modifying
+    @Query("""
+        UPDATE CrawlQueue q SET q.status = com.searchengine.entity.CrawlQueue.QueueStatus.PROCESSING
+        WHERE q.id IN :ids
+        """)
+    void markProcessing(@Param("ids") List<Long> ids);
+}

@@ -1,0 +1,29 @@
+{$DOMAIN} {
+	encode gzip zstd
+
+	# limit request body size to defend against oversized payloads
+	request_body {
+		max_size 1MB
+	}
+
+	reverse_proxy app:8080 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# block direct external access to management endpoints
+	@blocked path /actuator/*
+	respond @blocked 404
+
+	log {
+		output stdout
+		format console
+	}
+}

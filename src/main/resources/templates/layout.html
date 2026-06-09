@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title th:text="${title} + ' — Search Engine'">Search Engine</title>
+    <meta name="description" th:content="${description ?: 'Мини-поисковик на Spring Boot'}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<header>
+    <nav>
+        <a th:href="@{/}" class="brand">SearchEngine</a>
+        <ul>
+            <li><a th:href="@{/}">Поиск</a></li>
+            <li><a th:href="@{/about}">О проекте</a></li>
+            <li><a th:href="@{/docs}" rel="noopener noreferrer">API docs</a></li>
+        </ul>
+    </nav>
+</header>
+<main th:fragment="content"></main>
+</body>
+</html>

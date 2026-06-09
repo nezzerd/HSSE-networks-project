@@ -1,0 +1,16 @@
+target/*
+!target/searchengine-*.jar
+
+data/
+*.log
+.git/
+.gitignore
+.idea/
+*.iml
+.DS_Store
+README.md
+Caddyfile
+docker-compose.yml
+.env
+.env.*
+!.env.example

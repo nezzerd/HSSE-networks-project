@@ -1,0 +1,17 @@
+target/
+*.class
+*.jar
+*.war
+.idea/
+*.iml
+.DS_Store
+data/
+*.log
+
+# Lucene index
+lucene-index/
+
+# env files
+.env
+.env.*
+!.env.example
