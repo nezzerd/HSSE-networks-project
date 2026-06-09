@@ -17,7 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
     "app.admin.username=admin",
-    "app.admin.password=test-secret"
+    "app.admin.password=test-secret",
+    "search.index-path=./target/test-lucene-index-security",
+    "spring.datasource.url=jdbc:h2:mem:sec-testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH"
 })
 class SecurityConfigTest {
 
