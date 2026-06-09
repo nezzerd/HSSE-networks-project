@@ -35,12 +35,13 @@ class SearchWebControllerTest {
     void search_rendersResultsView() throws Exception {
         SearchHit hit = new SearchHit(1L, "https://example.com", "Example", "An <mark>example</mark>", 1.0f);
         when(searchService.search(anyString(), anyInt()))
-            .thenReturn(new SearchPage(List.of(hit), false));
+            .thenReturn(new SearchPage(List.of(hit), false, 1L));
 
         mockMvc.perform(get("/search").param("q", "example"))
             .andExpect(status().isOk())
             .andExpect(view().name("results"))
             .andExpect(model().attribute("hasResults", true))
+            .andExpect(model().attribute("totalHits", 1L))
             .andExpect(content().string(org.hamcrest.Matchers.containsString("https://example.com")));
     }
 

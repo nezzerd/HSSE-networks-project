@@ -29,7 +29,9 @@
     </form>
 
     <p class="meta" th:if="${hasResults}">
-        <span th:text="'Страница ' + (${page} + 1)">Страница 1</span>
+        <span th:text="'Найдено ~' + ${totalHits} + ' результатов'">Найдено ~0 результатов</span>
+        <span th:if="${totalPages != null and totalPages > 0}"
+              th:text="'· страница ' + (${page} + 1) + ' из ' + ${totalPages}">· страница 1 из 1</span>
         <span th:if="${tookMillis != null}" th:text="'· ' + ${tookMillis} + ' мс'"></span>
     </p>
 
@@ -50,10 +52,18 @@
     <nav class="pagination" th:if="${hasResults}" aria-label="Навигация по страницам">
         <a th:if="${prevPage != null}"
            th:href="@{/search(q=${query}, page=${prevPage})}"
-           class="page-link">← Назад</a>
+           class="page-link" rel="prev">← Назад</a>
+
+        <a th:each="p : ${pageNumbers}"
+           th:href="@{/search(q=${query}, page=${p})}"
+           th:text="${p + 1}"
+           th:classappend="${p == page} ? ' page-link--current' : ''"
+           th:attr="aria-current=${p == page} ? 'page' : null"
+           class="page-link">1</a>
+
         <a th:if="${nextPage != null}"
            th:href="@{/search(q=${query}, page=${nextPage})}"
-           class="page-link">Вперёд →</a>
+           class="page-link" rel="next">Вперёд →</a>
     </nav>
 </main>
 </body>

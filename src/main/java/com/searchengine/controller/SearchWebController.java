@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -22,6 +23,7 @@ public class SearchWebController {
 
     private static final int MAX_PAGE = 99;
     private static final int MAX_QUERY_LENGTH = 256;
+    private static final int PAGE_WINDOW = 10;
 
     private final SearchService searchService;
     private final SearchProperties searchProperties;
@@ -45,6 +47,9 @@ public class SearchWebController {
             model.addAttribute("results", List.of());
             model.addAttribute("hasMore", false);
             model.addAttribute("hasResults", false);
+            model.addAttribute("totalHits", 0L);
+            model.addAttribute("totalPages", 0);
+            model.addAttribute("pageNumbers", List.of());
             return "results";
         }
 
@@ -56,14 +61,36 @@ public class SearchWebController {
             .map(SearchResultDto::from)
             .toList();
 
+        int pageSize = searchProperties.getPageSize();
+        long totalHits = result.totalHits();
+        int totalPages = (int) ((totalHits + pageSize - 1) / pageSize);
+
         model.addAttribute("results", results);
         model.addAttribute("hasResults", !results.isEmpty());
         model.addAttribute("hasMore", result.hasMore());
         model.addAttribute("tookMillis", took);
+        model.addAttribute("totalHits", totalHits);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageNumbers", buildPageWindow(page, totalPages));
         model.addAttribute("prevPage", page > 0 ? page - 1 : null);
         model.addAttribute("nextPage", result.hasMore() ? page + 1 : null);
 
         return "results";
+    }
+
+    private List<Integer> buildPageWindow(int current, int totalPages) {
+        if (totalPages <= 1) {
+            return List.of();
+        }
+        int start = Math.max(0, current - PAGE_WINDOW / 2);
+        int end = Math.min(totalPages - 1, start + PAGE_WINDOW - 1);
+        start = Math.max(0, end - PAGE_WINDOW + 1);
+
+        List<Integer> pages = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            pages.add(i);
+        }
+        return pages;
     }
 
     @GetMapping("/about")

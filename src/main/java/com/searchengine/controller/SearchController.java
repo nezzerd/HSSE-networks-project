@@ -90,6 +90,7 @@ public class SearchController {
             page,
             searchProperties.getPageSize(),
             results.size(),
+            result.totalHits(),
             result.hasMore(),
             took,
             results

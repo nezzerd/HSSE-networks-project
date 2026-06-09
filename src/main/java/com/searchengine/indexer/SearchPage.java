@@ -4,9 +4,10 @@ import java.util.List;
 
 public record SearchPage(
     List<SearchHit> hits,
-    boolean hasMore
+    boolean hasMore,
+    long totalHits
 ) {
     public static SearchPage empty() {
-        return new SearchPage(List.of(), false);
+        return new SearchPage(List.of(), false, 0L);
     }
 }

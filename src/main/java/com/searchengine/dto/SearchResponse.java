@@ -19,6 +19,9 @@ public record SearchResponse(
     @Schema(description = "Сколько результатов возвращено на этой странице", example = "10")
     int returned,
 
+    @Schema(description = "Общее число найденных результатов (с верхней планкой maxResults)", example = "57")
+    long totalHits,
+
     @Schema(description = "Есть ли следующая страница", example = "true")
     boolean hasMore,
 

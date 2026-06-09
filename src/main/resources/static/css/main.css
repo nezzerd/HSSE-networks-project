@@ -207,9 +207,10 @@ main.home {
 
 .pagination {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     margin-top: 2.5rem;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .page-link {
@@ -224,6 +225,13 @@ main.home {
 .page-link:hover {
     background: var(--color-accent);
     color: #fff;
+}
+
+.page-link--current {
+    background: var(--color-accent);
+    color: #fff;
+    font-weight: 600;
+    pointer-events: none;
 }
 
 .content-page h1 {

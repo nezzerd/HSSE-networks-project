@@ -73,14 +73,13 @@ public class LuceneSearcher {
 
             Query query = parser.parse(sanitized);
 
-            int fetchUpTo = Math.min(offset + pageSize + 1, props.getMaxResults());
-            TopDocs topDocs = searcher.search(query, fetchUpTo);
+            TopDocs topDocs = searcher.search(query, props.getMaxResults());
+            long totalHits = Math.min(topDocs.totalHits.value, props.getMaxResults());
 
             List<SearchHit> hits = collectHits(searcher, query, topDocs, offset, pageSize);
-            boolean hasMore = topDocs.scoreDocs.length > offset + pageSize
-                && offset + pageSize < props.getMaxResults();
+            boolean hasMore = (long) offset + pageSize < totalHits;
 
-            return new SearchPage(hits, hasMore);
+            return new SearchPage(hits, hasMore, totalHits);
         }
     }
 

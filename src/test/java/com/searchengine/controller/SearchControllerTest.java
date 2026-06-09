@@ -36,12 +36,13 @@ class SearchControllerTest {
     void search_returnsResults() throws Exception {
         SearchHit hit = new SearchHit(1L, "https://example.com", "Example", "An <mark>example</mark> page", 1.5f);
         when(searchService.search(eq("example"), anyInt()))
-            .thenReturn(new SearchPage(List.of(hit), false));
+            .thenReturn(new SearchPage(List.of(hit), false, 1L));
 
         mockMvc.perform(get("/api/search").param("q", "example"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.query").value("example"))
             .andExpect(jsonPath("$.returned").value(1))
+            .andExpect(jsonPath("$.totalHits").value(1))
             .andExpect(jsonPath("$.hasMore").value(false))
             .andExpect(jsonPath("$.results[0].url").value("https://example.com"));
     }
