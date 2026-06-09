@@ -156,6 +156,33 @@ class LuceneIndexerSearcherTest {
     }
 
     @Test
+    void search_highlightsTitle() throws IOException, ParseException {
+        indexer.indexPages(List.of(
+            buildPage(1L, "https://example.com/spring", "Spring Boot Guide",
+                "A guide to building applications.")));
+
+        SearchPage result = searcher.search("spring", 0);
+
+        assertThat(result.hits()).isNotEmpty();
+        String titleHighlighted = result.hits().get(0).titleHighlighted();
+        assertThat(titleHighlighted.toLowerCase()).contains("<mark>spring</mark>");
+    }
+
+    @Test
+    void search_titleHighlight_escapesHtml() throws IOException, ParseException {
+        indexer.indexPages(List.of(
+            buildPage(1L, "https://evil.com", "<script>alert(1)</script> dangerous title",
+                "Body content about dangerous things.")));
+
+        SearchPage result = searcher.search("dangerous", 0);
+
+        assertThat(result.hits()).isNotEmpty();
+        String titleHighlighted = result.hits().get(0).titleHighlighted();
+        assertThat(titleHighlighted).doesNotContain("<script>");
+        assertThat(titleHighlighted).contains("&lt;script&gt;");
+    }
+
+    @Test
     void countDocs_returnsCorrectCount() throws IOException {
         indexer.indexPages(List.of(
             buildPage(4L, "https://a.com", "Title A", "Content A"),

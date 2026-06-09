@@ -19,6 +19,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
+import org.apache.lucene.search.highlight.NullFragmenter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleFragmenter;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
@@ -126,6 +127,10 @@ public class LuceneSearcher {
         highlighter.setTextFragmenter(new SimpleFragmenter(props.getSnippetLength()));
         highlighter.setMaxDocCharsToAnalyze(MAX_HIGHLIGHT_CHARS);
 
+        Highlighter titleHighlighter = new Highlighter(formatter, new SimpleHTMLEncoder(), new QueryScorer(query));
+        titleHighlighter.setTextFragmenter(new NullFragmenter());
+        titleHighlighter.setMaxDocCharsToAnalyze(MAX_HIGHLIGHT_CHARS);
+
         List<SearchHit> hits = new ArrayList<>();
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         int limit = Math.min(offset + pageSize, scoreDocs.length);
@@ -138,16 +143,31 @@ public class LuceneSearcher {
             String title   = doc.get(LuceneIndexer.FIELD_TITLE);
             String content = doc.get(LuceneIndexer.FIELD_CONTENT);
             String snippet = buildSnippet(highlighter, content, title);
+            String titleHighlighted = highlightTitle(titleHighlighter, title);
 
             hits.add(new SearchHit(
                 id != null ? Long.parseLong(id) : -1L,
                 url,
                 title,
+                titleHighlighted,
                 snippet,
                 scoreDocs[i].score
             ));
         }
         return hits;
+    }
+
+    private String highlightTitle(Highlighter highlighter, String title) {
+        if (title == null || title.isBlank()) {
+            return "";
+        }
+        try {
+            String highlighted = highlighter.getBestFragment(analyzer, LuceneIndexer.FIELD_TITLE, title);
+            return highlighted != null ? highlighted : new SimpleHTMLEncoder().encodeText(title);
+        } catch (IOException | InvalidTokenOffsetsException e) {
+            log.debug("Title highlight failed: {}", e.getMessage());
+            return new SimpleHTMLEncoder().encodeText(title);
+        }
     }
 
     private String buildSnippet(Highlighter highlighter, String content, String title) {

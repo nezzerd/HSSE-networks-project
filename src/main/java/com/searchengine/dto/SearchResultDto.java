@@ -9,8 +9,12 @@ public record SearchResultDto(
     @Schema(description = "URL найденной страницы", example = "https://spring.io/projects/spring-boot")
     String url,
 
-    @Schema(description = "Заголовок страницы", example = "Spring Boot")
+    @Schema(description = "Заголовок страницы (plain text)", example = "Spring Boot")
     String title,
+
+    @Schema(description = "Заголовок с подсвеченными совпадениями (HTML с тегами mark, экранирован)",
+        example = "<mark>Spring</mark> Boot")
+    String titleHighlighted,
 
     @Schema(description = "Фрагмент текста с подсвеченными совпадениями (HTML с тегами mark)",
         example = "...build <mark>spring</mark> applications...")
@@ -23,6 +27,7 @@ public record SearchResultDto(
         return new SearchResultDto(
             hit.url(),
             hit.title(),
+            hit.titleHighlighted(),
             hit.snippet(),
             hit.score()
         );

@@ -33,7 +33,7 @@ class SearchWebControllerTest {
     @Test
     @WithMockUser
     void search_rendersResultsView() throws Exception {
-        SearchHit hit = new SearchHit(1L, "https://example.com", "Example", "An <mark>example</mark>", 1.0f);
+        SearchHit hit = new SearchHit(1L, "https://example.com", "Example", "Example", "An <mark>example</mark>", 1.0f);
         when(searchService.search(anyString(), anyInt()))
             .thenReturn(new SearchPage(List.of(hit), false, 1L, null));
 

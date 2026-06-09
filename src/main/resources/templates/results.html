@@ -46,8 +46,13 @@
 
     <ol class="result-list" th:if="${hasResults}">
         <li class="result" th:each="r : ${results}">
-            <a class="result-title" th:href="${r.url()}" th:text="${r.title() != null and !r.title().isEmpty()} ? ${r.title()} : ${r.url()}"
-               rel="noopener noreferrer nofollow" target="_blank">Заголовок</a>
+            <a class="result-title" th:href="${r.url()}" th:title="${r.title()}"
+               rel="noopener noreferrer nofollow" target="_blank">
+                <span th:if="${r.titleHighlighted() != null and !r.titleHighlighted().isEmpty()}"
+                      th:utext="${r.titleHighlighted()}">Заголовок</span>
+                <span th:unless="${r.titleHighlighted() != null and !r.titleHighlighted().isEmpty()}"
+                      th:text="${r.url()}">https://example.com</span>
+            </a>
             <div class="result-url" th:text="${r.url()}">https://example.com</div>
             <p class="result-snippet" th:utext="${r.snippet()}">Фрагмент текста…</p>
         </li>
