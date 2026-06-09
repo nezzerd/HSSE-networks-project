@@ -20,4 +20,6 @@ public class CrawlerProperties {
     private int maxQueueSize = 100_000;
     private int maxLinksPerPage = 500;
     private String userAgent = "SearchEngineBot/1.0";
+    private int simhashThreshold = 3;
+    private int simhashCandidates = 50;
 }

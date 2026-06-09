@@ -24,4 +24,12 @@ public interface PageRepository extends JpaRepository<Page, Long> {
 
     @Query("SELECT p.urlHash FROM Page p ORDER BY p.fetchedAt DESC")
     List<String> findUrlHashesOrderByFetchedAtDesc(Pageable pageable);
+
+    @Query("""
+        SELECT p.simhash FROM Page p
+        WHERE p.simhash IS NOT NULL
+          AND p.status = com.searchengine.entity.Page.PageStatus.FETCHED
+        ORDER BY p.fetchedAt DESC
+        """)
+    List<Long> findRecentSimhashes(Pageable pageable);
 }

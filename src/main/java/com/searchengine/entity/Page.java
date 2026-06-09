@@ -37,6 +37,9 @@ public class Page {
     @Column(name = "content_hash", length = 64)
     private String contentHash;
 
+    @Column(name = "simhash")
+    private Long simhash;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     @Builder.Default

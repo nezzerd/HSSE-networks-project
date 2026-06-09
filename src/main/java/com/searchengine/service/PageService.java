@@ -1,8 +1,11 @@
 package com.searchengine.service;
 
+import com.searchengine.config.CrawlerProperties;
 import com.searchengine.entity.Page;
 import com.searchengine.repository.PageRepository;
+import com.searchengine.util.SimHash;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,7 @@ import java.util.Optional;
 public class PageService {
 
     private final PageRepository pageRepository;
+    private final CrawlerProperties crawlerProperties;
 
     public Optional<Page> findById(Long id) {
         return pageRepository.findById(id);
@@ -55,10 +59,28 @@ public class PageService {
         if (pageRepository.existsByUrlHash(urlHash) || pageRepository.existsByContentHash(contentHash)) {
             return Optional.empty();
         }
+
+        Long simhash = (content != null && !content.isBlank()) ? SimHash.compute(content) : null;
+        if (simhash != null && isNearDuplicate(simhash)) {
+            return Optional.empty();
+        }
+
         Page saved = pageRepository.save(Page.builder()
             .url(url).urlHash(urlHash).contentHash(contentHash)
-            .title(title).content(content)
+            .title(title).content(content).simhash(simhash)
             .status(Page.PageStatus.FETCHED).build());
         return Optional.of(saved);
+    }
+
+    private boolean isNearDuplicate(long simhash) {
+        int threshold = crawlerProperties.getSimhashThreshold();
+        List<Long> candidates = pageRepository.findRecentSimhashes(
+            PageRequest.of(0, crawlerProperties.getSimhashCandidates()));
+        for (Long candidate : candidates) {
+            if (candidate != null && SimHash.hammingDistance(simhash, candidate) < threshold) {
+                return true;
+            }
+        }
+        return false;
     }
 }
