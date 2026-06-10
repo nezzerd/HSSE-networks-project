@@ -13,9 +13,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/crawl")
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class CrawlerController {
 
     private static final int START_REQUESTS_PER_MINUTE = 5;
+    private static final int CLEAR_REQUESTS_PER_MINUTE = 5;
 
     private final CrawlerService crawlerService;
     private final CrawlStateStore stateStore;
@@ -61,6 +65,36 @@ public class CrawlerController {
         description = "Возвращает признак работы и статистику по очереди обхода.")
     public ResponseEntity<CrawlStatusResponse> getStatus() {
         return ResponseEntity.ok(status());
+    }
+
+    @PostMapping("/clear")
+    @Operation(
+        summary = "Очистить очередь обхода",
+        description = "Удаляет URL из очереди краулинга. По умолчанию (onlyPending=true) удаляются "
+            + "только PENDING и FAILED — выполняющиеся (PROCESSING) и завершённые (DONE) сохраняются. "
+            + "При onlyPending=false очередь очищается полностью и сбрасывается множество "
+            + "посещённых URL. Краулер должен быть остановлен, иначе возвращается 409 Conflict."
+    )
+    public ResponseEntity<Map<String, Object>> clearQueue(
+            @RequestParam(value = "onlyPending", defaultValue = "true") boolean onlyPending,
+            HttpServletRequest httpRequest) {
+        String clientId = rateLimiter.resolveClientId(httpRequest);
+        if (!rateLimiter.tryConsume("crawl-clear", clientId, CLEAR_REQUESTS_PER_MINUTE)) {
+            throw new RateLimitExceededException("Crawl API rate limit exceeded. Try again later.");
+        }
+        if (crawlerService.isRunning()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "message", "Stop the crawler before clearing the queue"));
+        }
+
+        int cleared = crawlQueueService.clearQueue(onlyPending);
+        if (!onlyPending) {
+            stateStore.reset();
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "cleared", cleared,
+            "status", status()));
     }
 
     private CrawlStatusResponse status() {

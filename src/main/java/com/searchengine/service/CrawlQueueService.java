@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -56,6 +58,14 @@ public class CrawlQueueService {
         crawlQueueRepository.save(CrawlQueue.builder()
             .url(url).urlHash(urlHash).depth(depth).priority(priority)
             .status(CrawlQueue.QueueStatus.PENDING).build());
+    }
+
+    @Transactional
+    public int clearQueue(boolean onlyPending) {
+        Collection<CrawlQueue.QueueStatus> statuses = onlyPending
+            ? List.of(CrawlQueue.QueueStatus.PENDING, CrawlQueue.QueueStatus.FAILED)
+            : Arrays.asList(CrawlQueue.QueueStatus.values());
+        return crawlQueueRepository.deleteByStatusIn(statuses);
     }
 
     @Transactional

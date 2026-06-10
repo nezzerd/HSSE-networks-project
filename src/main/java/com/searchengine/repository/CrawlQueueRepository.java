@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,4 +48,8 @@ public interface CrawlQueueRepository extends JpaRepository<CrawlQueue, Long> {
         WHERE q.urlHash = :urlHash
         """)
     int resetToPendingByUrlHash(@Param("urlHash") String urlHash, @Param("priority") int priority);
+
+    @Modifying
+    @Query("DELETE FROM CrawlQueue q WHERE q.status IN :statuses")
+    int deleteByStatusIn(@Param("statuses") Collection<CrawlQueue.QueueStatus> statuses);
 }
