@@ -15,9 +15,3 @@ lucene-index/
 .env
 .env.*
 !.env.example
-
-# local tooling
-.claude/
-
-# kept local-only, not pushed
-README.md
