@@ -29,6 +29,7 @@ spring:
 
 server:
   port: 8080
+  shutdown: graceful
   compression:
     enabled: true
     mime-types: text/html,text/css,application/javascript

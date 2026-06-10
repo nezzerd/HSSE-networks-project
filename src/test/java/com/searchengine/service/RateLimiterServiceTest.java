@@ -1,12 +1,39 @@
 package com.searchengine.service;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RateLimiterServiceTest {
 
     private final RateLimiterService rateLimiter = new RateLimiterService();
+
+    @Test
+    void resolveClientId_prefersProxySetXRealIp() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("10.0.0.1");
+        request.addHeader("X-Real-IP", "203.0.113.7");
+
+        assertThat(rateLimiter.resolveClientId(request)).isEqualTo("203.0.113.7");
+    }
+
+    @Test
+    void resolveClientId_ignoresClientSuppliedXForwardedFor() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("10.0.0.1");
+        request.addHeader("X-Forwarded-For", "1.2.3.4");
+
+        assertThat(rateLimiter.resolveClientId(request)).isEqualTo("10.0.0.1");
+    }
+
+    @Test
+    void resolveClientId_fallsBackToRemoteAddr_whenNoRealIp() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("198.51.100.9");
+
+        assertThat(rateLimiter.resolveClientId(request)).isEqualTo("198.51.100.9");
+    }
 
     @Test
     void allowsRequestsWithinLimit() {

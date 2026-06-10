@@ -40,11 +40,9 @@ public class RateLimiterService {
     }
 
     public String resolveClientId(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            int comma = forwarded.indexOf(',');
-            String first = comma > 0 ? forwarded.substring(0, comma) : forwarded;
-            return first.strip();
+        String realIp = request.getHeader("X-Real-IP");
+        if (realIp != null && !realIp.isBlank()) {
+            return realIp.strip();
         }
         String remote = request.getRemoteAddr();
         return remote != null ? remote : "unknown";
