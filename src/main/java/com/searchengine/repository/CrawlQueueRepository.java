@@ -52,4 +52,13 @@ public interface CrawlQueueRepository extends JpaRepository<CrawlQueue, Long> {
     @Modifying
     @Query("DELETE FROM CrawlQueue q WHERE q.status IN :statuses")
     int deleteByStatusIn(@Param("statuses") Collection<CrawlQueue.QueueStatus> statuses);
+
+    @Modifying
+    @Query(value = """
+        INSERT INTO crawl_queue (url, url_hash, depth, priority, status, created_at)
+        VALUES (:url, :urlHash, :depth, :priority, 'PENDING', CURRENT_TIMESTAMP)
+        ON CONFLICT (url_hash) DO NOTHING
+        """, nativeQuery = true)
+    int insertIfAbsent(@Param("url") String url, @Param("urlHash") String urlHash,
+                       @Param("depth") int depth, @Param("priority") int priority);
 }
